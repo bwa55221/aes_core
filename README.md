@@ -11,3 +11,6 @@ Created a VHDL test bench used to actuate the IP and confirm NIST test vectors.
 ## disclaimer
 this is a fork of the repo https://github.com/BLu85/AES-GCM-128-192-256-bits
 
+## License
+
+All the files in this repository are licensed under [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
