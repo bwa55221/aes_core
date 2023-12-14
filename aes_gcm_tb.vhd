@@ -64,6 +64,8 @@ architecture rtl of aes_gcm_tb is
     type state_type_ack_control is (IDLE, START, ACK, END_ACK, SAMPLE_DATA, FINISHED);
     signal ECB_CONTROL_STATE        : state_type_ack_control := IDLE;
 
+    
+    -- gcm wrapper signals
     type state_type_gcm         is (IDLE, GEN_HASH_SUBKEY, GEN_HASH_SUBKEY_WAIT, GEN_PRECOUNTER, GCTR, GCTR_WAIT, GEN_TAG, FINISHED);
     signal GCM_FSM_STATE            : state_type_gcm := IDLE;
 
@@ -80,7 +82,7 @@ architecture rtl of aes_gcm_tb is
 
     signal ghash_h                  : std_logic_vector(aes_DATA_WIDTH_C -1 downto 0) := ZERO_BLOCK;
     signal ghash_x                  : std_logic_vector(aes_DATA_WIDTH_C -1 downto 0) := ZERO_BLOCK;
-    signal ghash_y                  : std_logic_vector(aes_DATA_WIDTH_C -1 downto 0);
+    signal ghash_y                  : std_logic_vector(aes_DATA_WIDTH_C -1 downto 0) := ZERO_BLOCK;
     signal AAD                      : std_logic_vector(aes_DATA_WIDTH_C -1 downto 0) := X"3AD77BB4_0D7A3660_A89ECAF3_2466EF97";
     signal GHASH_COMPLETE_f         : std_logic := '0';
 
@@ -95,7 +97,13 @@ begin
     -- setup clock
     global_clk <= not global_clk after 500 ps;
     
-    dut1 : aes_ecb port map (
+    dut1 : ghash_gfmul port map(
+        gf_mult_h_i             => ghash_h,
+        gf_mult_x_i             => ghash_x,
+        gf_mult_y_o             => ghash_y
+    );
+
+    dut2 : aes_ecb port map (
             rst_i                   => ecb_reset,
             clk_i                   => ecb_clk,
             aes_mode_i              => ecb_aes_mode,
@@ -108,12 +116,6 @@ begin
             aes_cipher_text_val_o   => ecb_cipher_val,
             aes_cipher_text_o       => ecb_cipher_text,
             aes_ecb_busy_o          => ecb_ecb_busy
-    );
-
-    dut2 : ghash_gfmul port map(
-        gf_mult_h_i             => ghash_h,
-        gf_mult_x_i             => ghash_x,
-        gf_mult_y_o             => ghash_y
     );
 
     GCM_FSM : process(global_clk)
@@ -172,8 +174,6 @@ begin
 
         end if;
     end if;
-
-
     end process;
 
 
@@ -237,12 +237,12 @@ begin
         end if;
     end process;
 
-    process(ghash_y)
+    process
     begin
-        if ghash_y /= ZERO_BLOCK then
-            GHASH_COMPLETE_f <= '1';
-        end if;
-
+        for i in 0 to 100 loop
+            wait until rising_edge(global_clk);
+        end loop;
+        stop;
     end process;
-
+    
 end rtl;

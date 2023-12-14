@@ -5,6 +5,8 @@ use work.aes_func.all;
 use std.env.all;
 use ieee.std_logic_textio.all;
 
+-- test vectors found here: https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Standards-and-Guidelines/documents/examples/AES_Core128.pdf
+
 entity aes_ecb_tb is
 end aes_ecb_tb;
 
@@ -76,8 +78,11 @@ begin
     fsm_pipe_reset <= '1', '0' after 500 ps;
 
     -- insert test vector
-    fsm_plain_text <= ZERO_BLOCK, X"6BC1BEE2_2E409F96_E93D7E11_7393172A" after 1 ns, X"AE2D8A57_1E03AC9C_9EB76FAC_45AF8E51" after 2 ns,
-    X"30C81C46_A35CE411_E5FBC119_1A0A52EF" after 3 ns, X"F69F2445_DF4F9B17_AD2B417B_E66C3710" after 4 ns;
+    fsm_plain_text         <=   ZERO_BLOCK,
+                                X"6BC1BEE2_2E409F96_E93D7E11_7393172A" after 1 ns,
+                                X"AE2D8A57_1E03AC9C_9EB76FAC_45AF8E51" after 2 ns,
+                                X"30C81C46_A35CE411_E5FBC119_1A0A52EF" after 3 ns,
+                                X"F69F2445_DF4F9B17_AD2B417B_E66C3710" after 4 ns;
 
     -- control feedback to ecb block
     fsm_cipher_ack <= '1' when fsm_cipher_val = '1' else '0';
